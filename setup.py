@@ -3,11 +3,11 @@
 from glob import glob 
 from distutils.core import setup
 
-setup(name = "grobot",
+setup(name = "mairo",
       version = "0.1",
-      description = "Gmail robot",
+      description = "Mail robot",
       author = "Xizeng Mao, Yumin Liu",
       author_email = "xizeng.mao@gmail.com",
       url = "http://csbl.bmb.uga.edu/~xizeng/",
-      package_dir = {"mailrobot":"mailrobot"},
-      packages = ['mailrobot', 'mailrobot/imapclient', 'mailrobot/yaml'], )
+      package_dir = {"mairo":"mairo"},
+      packages = ['mairo', 'mairo/imapclient', 'mairo/yaml'], )

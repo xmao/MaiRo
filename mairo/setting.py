@@ -8,14 +8,14 @@ def get_home_dir() :
     return os.path.expanduser('~')
 
 def get_conf_dir():
-    d = os.path.join(get_home_dir(), '.mailrobot')
+    d = os.path.join(get_home_dir(), '.mairo')
     if not os.path.isdir(d):
         os.mkdir(d)
         os.mkdir(os.path.join(d, 'emails'))
     return d
 
 def get_conf_file():
-    return yaml.load(open(os.path.join(get_conf_dir(), 'mailrobotrc.yaml')))
+    return yaml.load(open(os.path.join(get_conf_dir(), 'mairorc.yaml')))
 
 def get_mailbox_dir(mailbox=''):
     d = os.path.join(get_conf_dir(), 'emails', mailbox)
