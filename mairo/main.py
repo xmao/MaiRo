@@ -31,15 +31,21 @@ class RobotGUI(QDialog):
         pass
 
     def processAccounts(self):
+        import sys, cStringIO
+        backup = sys.stdout
+        sys.stdout = cStringIO.StringIO()
+        
         msg = ''
-        for info in self.conf['accounts']:
-            old, extra = robot.process(info)
+        for account in self.conf['accounts']:
+            old, extra = robot.process(account)
+            self.browser.append(sys.stdout.getvalue())
             if old:
-                msg += 'MyPoints account: %s\n' % (info[2])
+                msg += 'MyPoints account: %s\n' % (account[2])
                 msg += 'Get %d more points, and you have %d points now :-)\n' % (extra, old + extra)
-
         self.browser.append(msg or "Get no point today :-(\n")
-    
+
+        sys.stdout.close(); sys.stdout = backup
+
 if __name__ == '__main__':
     import sys
     from PyQt4.QtGui import *
