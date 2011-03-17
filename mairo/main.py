@@ -22,7 +22,7 @@ class RobotGUI(QDialog):
 
         self.setWindowTitle("Mail robot")
 
-        QTimer.singleShot(10000, self.processAccounts)
+        QTimer.singleShot(1000, self.processAccounts)
 
     def quit(self):
         pass
