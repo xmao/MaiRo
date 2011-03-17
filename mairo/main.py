@@ -14,6 +14,7 @@ class RobotGUI(QDialog):
         self.conf = setting.get_conf_file()
 
         self.browser = QTextBrowser()
+        self.browser.append('Processing, wait...\n')
 
         self.button = QPushButton('I know now')
         self.connect(self.button, SIGNAL('clicked()'), self.quit)
@@ -58,6 +59,7 @@ class RobotGUI(QDialog):
             if old:
                 msg += 'MyPoints account: %s\n' % (account[2])
                 msg += 'Get %d more points, and you have %d points now :-)\n' % (extra, old + extra)
+
         self.browser.append(msg or "Get no point today :-(\n")
         self.trayIcon.setToolTip(msg or "Get no point today :-(\n")
 
