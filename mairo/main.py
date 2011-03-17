@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -13,22 +15,36 @@ class RobotGUI(QDialog):
 
         self.browser = QTextBrowser()
 
+        self.button = QPushButton('I know now')
+        self.connect(self.button, SIGNAL('clicked()'), self.quit)
+
         layout = QVBoxLayout()
         layout.addWidget(self.browser)
+        layout.addWidget(self.button)
 
         self.setLayout(layout)
 
-        self.setStatusBarIcon()
+        self.quitAction = QAction("&Quit", self, triggered = qApp.quit)
 
-        self.setWindowTitle("Mail robot")
+        self.setTrayIcon()
+        
+        self.setWindowTitle('Mail robot')
 
         QTimer.singleShot(1000, self.processAccounts)
 
     def quit(self):
-        pass
+        qApp.quit()
 
-    def setStatusBarIcon(self):
-        pass
+    def setTrayIcon(self):
+        self.trayIconMenu = QMenu(self)
+        self.trayIconMenu.addAction(self.quitAction)
+        
+        self.trayIcon = QSystemTrayIcon(self)
+        self.trayIcon.setIcon(QIcon(
+            os.path.join(os.path.dirname(__file__), 'images', 'heart.svg')))
+        self.trayIcon.setContextMenu(self.trayIconMenu)
+        
+        self.trayIcon.show()
 
     def processAccounts(self):
         import sys, cStringIO
@@ -43,6 +59,7 @@ class RobotGUI(QDialog):
                 msg += 'MyPoints account: %s\n' % (account[2])
                 msg += 'Get %d more points, and you have %d points now :-)\n' % (extra, old + extra)
         self.browser.append(msg or "Get no point today :-(\n")
+        self.trayIcon.setToolTip(msg or "Get no point today :-(\n")
 
         sys.stdout.close(); sys.stdout = backup
 
@@ -52,5 +69,5 @@ if __name__ == '__main__':
 
     a = QApplication(sys.argv)
     d = RobotGUI(); d.show()
-
+    
     sys.exit(a.exec_())
