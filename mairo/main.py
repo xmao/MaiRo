@@ -7,11 +7,34 @@ from PyQt4.QtGui import *
 
 import robot, setting
 
+class RobotAction(QThread):
+
+    def __init__(self, lock, parent=None):
+        super(RobotAction, self).__init__(parent)
+        self.lock, self.mutex = lock, QMutex()
+
+        self.conf = setting.get_conf_file()
+
+    def run(self):
+        import sys, cStringIO
+        backup = sys.stdout
+        sys.stdout = cStringIO.StringIO()
+        
+        msg = ''
+        for account in self.conf['accounts']:
+            old, extra = robot.process(account)
+            self.parent().browser.append(sys.stdout.getvalue())
+            if old:
+                msg += 'MyPoints account: %s\n' % (account[2])
+                msg += 'Get %d more points, and you have %d points now :-)\n' % (extra, old + extra)
+        sys.stdout.close(); sys.stdout = backup
+        self.parent().browser.append(msg or "Get no point today :-(\n")
+        self.parent().trayIcon.setToolTip(msg or "Get no point today :-(\n")
+
 class RobotGUI(QDialog):
 
     def __init__(self, parent = None):
         super(RobotGUI, self).__init__(parent=parent)
-        self.conf = setting.get_conf_file()
 
         self.browser = QTextBrowser()
         self.browser.append('Processing, wait...\n')
@@ -31,7 +54,9 @@ class RobotGUI(QDialog):
         
         self.setWindowTitle('Mail robot')
 
-        QTimer.singleShot(1000, self.processAccounts)
+        self.lock = QReadWriteLock()
+        self.action = RobotAction(self.lock, self)
+        self.action.start()
 
     def quit(self):
         qApp.quit()
@@ -46,24 +71,6 @@ class RobotGUI(QDialog):
         self.trayIcon.setContextMenu(self.trayIconMenu)
         
         self.trayIcon.show()
-
-    def processAccounts(self):
-        import sys, cStringIO
-        backup = sys.stdout
-        sys.stdout = cStringIO.StringIO()
-        
-        msg = ''
-        for account in self.conf['accounts']:
-            old, extra = robot.process(account)
-            self.browser.append(sys.stdout.getvalue())
-            if old:
-                msg += 'MyPoints account: %s\n' % (account[2])
-                msg += 'Get %d more points, and you have %d points now :-)\n' % (extra, old + extra)
-
-        self.browser.append(msg or "Get no point today :-(\n")
-        self.trayIcon.setToolTip(msg or "Get no point today :-(\n")
-
-        sys.stdout.close(); sys.stdout = backup
 
 if __name__ == '__main__':
     import sys
